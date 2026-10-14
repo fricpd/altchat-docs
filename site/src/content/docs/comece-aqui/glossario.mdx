@@ -1,0 +1,75 @@
+---
+title: Glossário
+description: "Os termos que aparecem na interface do Altchat e neste manual, em ordem alfabética."
+sidebar:
+  order: 9
+---
+
+**Aceitar**
+: Assumir um atendimento que está *Aguardando*. A partir daí ele fica atribuído a você.
+
+**Ack (visto)**
+: Os "tiques" da mensagem enviada: um cinza (enviada), dois cinzas (entregue), dois azuis (lida).
+
+**Assunto**
+: Motivo do atendimento, escolhido de uma lista cadastrada pelo administrador. Pode ser obrigatório ao resolver. Alimenta o Dashboard.
+
+**Atendimento / ticket / chamado**
+: Uma conversa com um cliente, do primeiro contato até o encerramento. Tem número (#000123), fila, responsável e estado.
+
+**Ausente**
+: Estado automático do usuário depois de alguns minutos sem interagir com o sistema. Volta a *online* ao mexer de novo.
+
+**Baileys**
+: Biblioteca que conecta um número de WhatsApp comum por QR Code, sem a API oficial. É a conexão do tipo *WhatsApp (QR Code)*.
+
+**Canal**
+: Meio de contato: WhatsApp, WebChat, Instagram Direct, Messenger.
+
+**Comentário interno / anotação**
+: Mensagem escrita dentro do atendimento que **o cliente não recebe**. Fica visível para a equipe, com fundo diferente.
+
+**Conexão**
+: Um número de WhatsApp, um WebChat ou uma conta de Instagram/Messenger ligada à empresa. Cada atendimento pertence a uma conexão.
+
+**Fila**
+: Setor de atendimento (Suporte, Financeiro...). Define quem vê o atendimento. Pode ter saudação, horário e mensagem fora do horário próprios.
+
+**Fila padrão**
+: Fila em que um atendimento cai automaticamente quando a conexão não pergunta ao cliente. Importante para chatbots: é a transferência para fora da fila do bot que interrompe o bot.
+
+**Grupo**
+: Conversa de grupo do WhatsApp. Aparece na aba *Grupos*, separada das conversas individuais.
+
+**Janela de 24 horas**
+: Regra da API oficial do WhatsApp (WABA): depois de 24 horas sem mensagem do cliente, a empresa só pode enviar *templates* aprovados pela Meta.
+
+**LID**
+: Identificador que o WhatsApp passou a usar no lugar do número em alguns contatos. Pode fazer um mesmo cliente aparecer sem número; o Altchat trata isso automaticamente.
+
+**Resolver**
+: Encerrar o atendimento. Abre uma janela para informar o assunto e um breve resumo.
+
+**Resposta rápida**
+: Texto (ou mídia) pronto, com um atalho. Chame digitando `/` na caixa de mensagem.
+
+**Retornar**
+: Devolver o atendimento à fila (volta para *Aguardando*, sem responsável).
+
+**SLA**
+: Tempo contado desde que o atendimento começou. Aparece no cabeçalho; pode ser pausado.
+
+**Tag**
+: Etiqueta colorida (ex.: *Sem internet*) marcada no atendimento. Serve para filtrar e para os relatórios.
+
+**Template**
+: Mensagem pré-aprovada pela Meta para a API oficial, usada para iniciar conversa ou responder fora da janela de 24 horas.
+
+**Transferir**
+: Mandar o atendimento para outra fila ou para outro atendente. O cliente pode receber uma mensagem automática avisando.
+
+**WABA**
+: WhatsApp Business API, a conexão oficial da Meta. Mais estável que o QR Code e sem risco de banimento, mas com custo por conversa e regras de template.
+
+**WebChat**
+: Conversa iniciada pelo widget no site do provedor ou pelo app do assinante. Não envia arquivos nem áudio, só texto e links.

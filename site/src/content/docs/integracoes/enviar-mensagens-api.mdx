@@ -1,0 +1,149 @@
+---
+title: Enviar mensagens pela API
+description: "Enviar texto, mídia, templates e menus pela API do Altchat a partir de outro sistema, consultar o status de entrega e exemplos em curl, PHP e n8n."
+sidebar:
+  order: 2
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import Perfil from '../../../components/Perfil.astro';
+
+<Perfil tipo="admin" />
+
+## `POST /api/messages/send`
+
+Envia uma mensagem para um número e, se não houver atendimento aberto com ele, abre um. Autenticação: token de escopo `full` ([Tokens](/integracoes/tokens-e-webhooks/)). Limite: **60 chamadas por minuto** por empresa.
+
+### Campos
+
+| Campo | Tipo | Obrigatório | Descrição |
+|---|---|---|---|
+| `number` | string | sim | Número com DDI e DDD, só dígitos: `5522999990001`. |
+| `body` | string | sim (ou mídia) | Texto da mensagem. |
+| `whatsappId` | número | não | ID da conexão por onde enviar. Sem ele, usa a conexão **padrão**. |
+| `quotedMsg` | string | não | ID de uma mensagem para citar. |
+| `medias` | arquivo(s) | não | Em `multipart/form-data`, um ou mais arquivos. |
+| `closeAfterSend` | boolean | não | Envia e encerra o atendimento. `closeSubject` define o assunto (padrão "Fechado automaticamente pela API"). |
+| `registerAsClosed` ou `openTicket: false` | boolean | não | Registra a mensagem num atendimento já encerrado, sem aparecer na fila. Útil para avisos (fatura, visita). `subject` define o assunto (padrão "Integracao externa"). |
+| `wabaTemplate` | objeto | API oficial | `{ "name", "languageCode", "bodyParameters": [], "previewBody" }`. Obrigatório fora da janela de 24 horas. |
+| `action` | `menu` ou `buttons` | não | Menu interativo (API oficial) com `menuOptions`, `menuButtonText`, `menuHeader`, `menuFooter`, `menuType` (`list`, `button`, `cta_url`, `auto`). |
+
+Booleanos aceitam `true`, `1`, `"yes"` e `"sim"`.
+
+### Resposta
+
+```json
+{ "ticketId": 456, "status": "closed", "closed": true, "messages": [ { "id": "...", "body": "...", "type": "chat" } ] }
+```
+
+### Erros
+
+| Mensagem | Causa |
+|---|---|
+| `Invalid number format. Only numbers is allowed.` | `number` com espaços, `+` ou traços. |
+| `whatsapp #N not found` | `whatsappId` inexistente ou de outra empresa. |
+| `ERR_CREATING_TICKET` | Falha ao abrir o atendimento (conexão desconectada, por exemplo). |
+| `Informe ao menos uma opcao para enviar menu WABA.` | `action: menu` sem `menuOptions`. |
+| 401 `ERR_SESSION_EXPIRED` | Token inválido. |
+| 429 | Limite de 60 por minuto. |
+
+## Exemplos
+
+<Tabs>
+	<TabItem label="curl">
+```bash
+curl -X POST https://app.altchat.com.br/api/messages/send \
+  -H "Authorization: Bearer SEU_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "number": "5522999990001",
+    "body": "Olá! Sua fatura de outubro está disponível: https://central.provedor.com.br/fatura/123",
+    "whatsappId": 1,
+    "registerAsClosed": true,
+    "subject": "Aviso de fatura"
+  }'
+```
+	</TabItem>
+	<TabItem label="curl com arquivo">
+```bash
+curl -X POST https://app.altchat.com.br/api/messages/send \
+  -H "Authorization: Bearer SEU_TOKEN" \
+  -F "number=5522999990001" \
+  -F "body=Segue o boleto em anexo" \
+  -F "whatsappId=1" \
+  -F "medias=@/caminho/boleto.pdf"
+```
+	</TabItem>
+	<TabItem label="PHP">
+```php
+<?php
+$payload = json_encode([
+  'number' => '5522999990001',
+  'body' => "Olá! Sua visita técnica foi agendada para amanhã, entre 8h e 12h.",
+  'whatsappId' => 1,
+  'registerAsClosed' => true,
+  'subject' => 'Agendamento de visita',
+]);
+$ch = curl_init('https://app.altchat.com.br/api/messages/send');
+curl_setopt_array($ch, [
+  CURLOPT_POST => true,
+  CURLOPT_POSTFIELDS => $payload,
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_HTTPHEADER => [
+    'Authorization: Bearer SEU_TOKEN',
+    'Content-Type: application/json',
+  ],
+]);
+$resposta = json_decode(curl_exec($ch), true);
+$codigo = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+curl_close($ch);
+if ($codigo !== 200) { /* registrar erro: $resposta['error'] */ }
+```
+	</TabItem>
+	<TabItem label="n8n">
+Nó **HTTP Request**: método `POST`, URL `https://app.altchat.com.br/api/messages/send`, autenticação *Header Auth* com nome `Authorization` e valor `Bearer SEU_TOKEN`, corpo JSON:
+
+```json
+{ "number": "{{ $json.telefone }}", "body": "{{ $json.texto }}", "whatsappId": 1 }
+```
+	</TabItem>
+	<TabItem label="Template (API oficial)">
+```json
+{
+  "number": "5522999990001",
+  "whatsappId": 2,
+  "wabaTemplate": {
+    "name": "aviso_fatura",
+    "languageCode": "pt_BR",
+    "bodyParameters": ["Ana", "outubro", "R$ 99,90"],
+    "previewBody": "Olá Ana, sua fatura de outubro no valor de R$ 99,90 está disponível."
+  }
+}
+```
+	</TabItem>
+</Tabs>
+
+<Aside type="tip" title="Avisos automáticos não devem abrir fila">
+Para faturas, agendamentos e lembretes use `registerAsClosed: true`. A mensagem fica no histórico do contato sem aparecer em *Aguardando*. Se o cliente responder, aí sim abre um atendimento novo na fila.
+</Aside>
+
+## Consultar o status de entrega
+
+`GET /api/messages/status?id=ID_DA_MENSAGEM` (limite de 300 por minuto):
+
+```json
+{ "id": "...", "ticketId": 456, "fromMe": true, "ack": 2, "status": "delivered", "failureReason": null, "createdAt": "...", "updatedAt": "..." }
+```
+
+| `ack` | `status` |
+|---|---|
+| -1 | `failed` (veja `failureReason`) |
+| 0 | `pending` |
+| 1 | `sent` |
+| 2 | `delivered` |
+| 3 | `read` |
+| 4 | `played` (áudio ouvido) |
+
+## Exemplo: ERP do provedor
+
+Um ERP típico chama a API em três momentos: ao gerar a fatura (aviso com link), ao agendar visita técnica (confirmação) e ao bloquear por inadimplência (aviso com link de pagamento). Para cada tipo, cadastre o texto como um modelo no ERP com variáveis (`{NOME}`, `{VENCIMENTO}`, `{LINK}`) e envie com `registerAsClosed: true`. Em conexões da API oficial, mantenha um template aprovado equivalente e use `wabaTemplate` quando o cliente não escreveu nas últimas 24 horas.

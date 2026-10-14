@@ -1,0 +1,66 @@
+---
+title: Perfis e permissões
+description: "O que o atendente, o administrador e a operação central podem fazer no Altchat, e o que muda no menu de cada um."
+sidebar:
+  order: 2
+---
+
+import { Aside } from '@astrojs/starlight/components';
+import Perfil from '../../../components/Perfil.astro';
+
+Cada usuário do Altchat tem um **perfil**. O perfil define o menu que aparece, as telas que abrem e as ações permitidas dentro de um atendimento. Nas páginas deste manual, a etiqueta no topo diz para quem a página é.
+
+## Os três perfis
+
+### <Perfil tipo="atendente" /> Atendente
+Atende clientes. Vê somente os atendimentos das **suas filas**, mais os que estão atribuídos a ele.
+
+- Menu: Dashboard, Atendimento, Chat Interno, Tickets internos, Contatos, Respostas Rápidas.
+- Pode: aceitar, responder, transferir, resolver e reabrir atendimentos; criar contatos; criar respostas rápidas; marcar tags; abrir tickets internos.
+- Não pode: ver conexões, filas, usuários e configurações; apagar atendimentos; apagar contatos.
+
+### <Perfil tipo="admin" /> Administrador
+Configura a empresa e supervisiona a operação. Tem tudo do atendente e mais o grupo **Administração** no menu.
+
+- Menu extra: Atendimentos, Monitoramento, API Tools, Auditoria, Avaliações, Empresa, Conexões, Filas, Usuários, Ramais (se a empresa tem telefonia), Tags, Assuntos, Configurações.
+- Pode: ver **todos** os atendimentos de todas as filas; apagar atendimento; apagar contato; transferir um atendimento para outra conexão; criar e editar usuários, filas e conexões; mudar configurações.
+
+### <Perfil tipo="super" /> Operação central
+É a equipe que administra a plataforma `app.altchat.com.br` (não o provedor). Gerencia as empresas, limites de canais, avisos globais, logs e backups. Não aparece no dia a dia do provedor.
+
+## Tabela de permissões
+
+| Ação | Atendente | Administrador |
+|---|:---:|:---:|
+| Ver atendimentos das próprias filas | ✅ | ✅ |
+| Ver atendimentos de todas as filas | ❌ | ✅ |
+| Aceitar, responder, transferir, resolver | ✅ | ✅ |
+| Apagar um atendimento | ❌ | ✅ |
+| Transferir para outra conexão (outro número) | ❌ | ✅ |
+| Criar e editar contatos | ✅ | ✅ |
+| Apagar contato | ❌ | ✅ |
+| Respostas rápidas | ✅ | ✅ |
+| Tags em um atendimento | ✅ | ✅ |
+| Criar tags, assuntos, filas, usuários | ❌ | ✅ |
+| Conexões (QR Code, WABA, WebChat...) | ❌ | ✅ |
+| Dashboard | ✅ | ✅ |
+| Monitoramento, Atendimentos, Auditoria, Avaliações | ❌ | ✅ |
+| Configurações da empresa | ❌ | ✅ |
+| Chat interno e tickets internos | ✅ | ✅ |
+
+## Permissões por usuário
+
+Além do perfil, o administrador pode ligar ou desligar opções individuais no cadastro de cada usuário (tela **Usuários**):
+
+- **Ver atendimentos da fila**: controla se o atendente enxerga os atendimentos *Aguardando* e os de colegas na mesma fila, ou só os próprios.
+- **Carregar mensagens de atendimentos anteriores**: mostra o histórico de conversas antigas do mesmo contato dentro do atendimento atual.
+- **Apagar conversas do chat interno** (individuais e em grupo).
+- **Modo supervisor** e permissão de **chamadas WABA**, quando a empresa usa esses recursos.
+
+<Aside type="note">
+Essas opções mudam o que a tela mostra, não só o que ela permite. Se um atendente "não vê" um atendimento que deveria ver, o primeiro lugar para olhar é a fila dele e a opção **Ver atendimentos da fila**.
+</Aside>
+
+## Como saber o meu perfil
+
+No canto inferior do menu lateral aparecem o seu nome, o perfil e o estado (online ou ausente). O mesmo bloco abre o seu cadastro para trocar nome, e-mail e senha.

@@ -1,0 +1,21 @@
+---
+title: Foto de perfil não aparece
+description: "Quando o Altchat mostra as iniciais em vez da foto do contato: limitações por tipo de conexão e o que é normal."
+sidebar:
+  order: 7
+---
+
+import Perfil from '../../../components/Perfil.astro';
+
+<Perfil tipo="atendente" /> <Perfil tipo="admin" />
+
+**Sintoma**: o contato aparece com um círculo com as iniciais, sem a foto do WhatsApp.
+
+| Conexão | Comportamento |
+|---|---|
+| **QR Code** | A foto é buscada automaticamente quando o contato escreve e renovada periodicamente. Se não aparece: o cliente não tem foto, ou configurou a privacidade do WhatsApp para não mostrar a foto a quem não está na agenda. Nada a fazer. |
+| **API oficial (WABA / Gupshup)** | A Meta **não fornece** a foto de perfil pela API. As iniciais são o comportamento normal. |
+| **WebChat** | Não existe foto. |
+| **Instagram / Messenger** | A foto do perfil vem quando a Meta a disponibiliza. |
+
+A foto demora alguns segundos para aparecer no primeiro contato. Se um contato por QR Code tinha foto e perdeu, ela volta na próxima renovação automática; não há botão manual.

@@ -1,0 +1,52 @@
+---
+title: Integrações e API (visão geral)
+description: "Todas as formas de integrar o Altchat a outros sistemas: API com token, webhook de comandos, chatbots n8n e Typebot, API Tools, widget de WebChat e app do provedor."
+sidebar:
+  order: 0
+  label: Visão geral
+---
+
+import { CardGrid, LinkCard, Aside } from '@astrojs/starlight/components';
+import Perfil from '../../../components/Perfil.astro';
+
+<Perfil tipo="admin" />
+
+O Altchat conversa com o resto da operação do provedor de cinco maneiras. Escolha pelo que você quer fazer:
+
+| Quero... | Use | Guia |
+|---|---|---|
+| Mandar mensagens a partir do ERP, do sistema de cobrança ou de um script | **API com token de integração** | [Enviar mensagens pela API](/integracoes/enviar-mensagens-api/) |
+| Consultar ou alterar atendimentos, contatos e filas por programa | **API** (mesma autenticação) | [Referência da API](/integracoes/referencia-api/) |
+| Ter um robô que responde antes do atendente | **n8n** ou **Typebot** por conexão | [Chatbots](/integracoes/chatbots/) |
+| Mandar comandos para um atendimento (transferir, etiquetar, fechar) a partir de um fluxo externo | **Webhook de comandos** | [Tokens e webhook de comandos](/integracoes/tokens-e-webhooks/) |
+| Deixar o atendente executar ações no ERP de dentro da conversa (2ª via, desbloqueio) | **API Tools** | [API Tools](/administradores/api-tools/) |
+| Colocar um chat no site | **Widget WebChat** | [Widget WebChat](/integracoes/widget-webchat/) |
+| Colocar um chat dentro do app do assinante, já identificado | **WebChat identificado pelo app** | [App do provedor](/integracoes/app-do-provedor/) |
+
+<Aside type="note" title="O que não existe">
+Não há um "webhook de saída" genérico por empresa que avise um sistema externo a cada mensagem. O único envio automático para fora é o **webhook n8n por conexão**, que é também a forma recomendada de reagir a mensagens recebidas: o n8n recebe tudo e decide o que fazer.
+</Aside>
+
+## Endereços
+
+Todas as chamadas vão para o mesmo endereço do painel, por https:
+
+```
+https://app.altchat.com.br
+```
+
+Nos exemplos deste manual, substitua `SEU_TOKEN` por um token gerado em **Configurações → Integrações → Gerar token**.
+
+## Antes de integrar
+
+1. Crie um **token** com o escopo certo e prazo de expiração ([Tokens](/integracoes/tokens-e-webhooks/)).
+2. Decida por qual **conexão** as mensagens vão sair (`whatsappId`). Na API oficial, mensagens para quem não escreveu há 24 horas exigem **template**.
+3. Teste com o seu próprio número antes de ligar em produção.
+4. Respeite os limites: 60 envios por minuto por empresa na rota de envio.
+
+<CardGrid>
+	<LinkCard title="Enviar mensagens pela API" href="/integracoes/enviar-mensagens-api/" />
+	<LinkCard title="Chatbots com n8n e Typebot" href="/integracoes/chatbots/" />
+	<LinkCard title="Widget WebChat" href="/integracoes/widget-webchat/" />
+	<LinkCard title="App do provedor" href="/integracoes/app-do-provedor/" />
+</CardGrid>

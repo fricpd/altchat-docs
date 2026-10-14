@@ -1,0 +1,55 @@
+---
+title: Central de Ajuda do Altchat
+description: "Tudo sobre o Altchat, do primeiro atendimento à API. Guias por perfil, capturas de tela reais e respostas diretas."
+template: splash
+hero:
+  title: Como podemos ajudar?
+  tagline: Tudo sobre o Altchat, do primeiro atendimento à API. Escolha o seu perfil ou use a busca (atalho <kbd>Ctrl</kbd> + <kbd>K</kbd>).
+  actions:
+    - text: Começar pelo básico
+      link: /comece-aqui/o-que-e-o-altchat/
+      icon: right-arrow
+      variant: primary
+    - text: Abrir o Altchat
+      link: https://app.altchat.com.br
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+## Encontre o seu caminho
+
+<CardGrid stagger>
+	<Card title="Sou atendente" icon="comment">
+		Aceitar, responder, transferir e encerrar atendimentos. Respostas rápidas, mídia, anotações, tags e chat interno.
+
+		[Ver guias do atendente →](/atendentes/aceitar-responder-encerrar/)
+	</Card>
+	<Card title="Sou administrador" icon="setting">
+		Conexões de WhatsApp, filas, usuários, horários, mensagens automáticas, avaliações e relatórios.
+
+		[Ver guias do administrador →](/administradores/)
+	</Card>
+	<Card title="Quero integrar" icon="puzzle">
+		Tokens de API, webhooks, chatbots com n8n e Typebot, widget de WebChat e o app do provedor.
+
+		[Ver integrações e API →](/integracoes/)
+	</Card>
+	<Card title="Algo não funciona" icon="warning">
+		Conexão caiu, mensagem não enviada, cliente na fila errada, bot que não para, mídia que não abre.
+
+		[Ver solução de problemas →](/problemas/)
+	</Card>
+</CardGrid>
+
+## Mais procurados
+
+<CardGrid>
+	<LinkCard title="Aceitar, responder e encerrar um atendimento" href="/atendentes/aceitar-responder-encerrar/" />
+	<LinkCard title="Transferir um atendimento" href="/atendentes/transferir/" />
+	<LinkCard title="Usar respostas rápidas" href="/atendentes/respostas-rapidas/" />
+	<LinkCard title="Entender as abas Abertos, Aguardando e Pesquisa" href="/atendentes/abas-e-filtros/" />
+	<LinkCard title="Anotações internas e mensagens ao cliente" href="/atendentes/anotacoes-internas/" />
+	<LinkCard title="Perfis e permissões" href="/comece-aqui/perfis-e-permissoes/" />
+</CardGrid>

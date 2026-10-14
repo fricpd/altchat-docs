@@ -1,0 +1,120 @@
+---
+title: Chatbots com n8n e Typebot
+description: "Ligar um robô a uma conexão do Altchat: o que o n8n recebe a cada mensagem, como responde, como funciona o Typebot, e as regras que fazem o bot parar quando o humano assume."
+sidebar:
+  order: 4
+---
+
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import Perfil from '../../../components/Perfil.astro';
+
+<Perfil tipo="admin" />
+
+Um chatbot no Altchat é configurado **por conexão**, na janela da conexão (blocos **Integração n8n** e **Integração Typebot**). Ele responde ao cliente antes de um atendente aceitar, e para quando as regras de parada dizem que o humano assumiu.
+
+## Prepare a conexão
+
+<Steps>
+1. Crie uma fila para o bot (por exemplo, *Triagem*) e marque-a como **Fila padrão da conexão**. Sem fila padrão, o bot responde em qualquer fila e não para na transferência.
+2. Deixe a **Mensagem de saudação** da conexão vazia: quem recebe o cliente é o bot.
+3. Ligue as chaves de parada: **Interromper quando o chamado for aceito** e **Interromper quando o chamado sair da fila padrão**.
+4. Preencha o bloco do n8n ou do Typebot conforme abaixo e salve.
+</Steps>
+
+## n8n
+
+### Configuração
+
+| Campo | Valor |
+|---|---|
+| **Ativar webhook ao receber mensagem** | Ligado. |
+| **Endpoint webhook** | A URL do nó *Webhook* do seu fluxo no n8n (`https://seu-n8n/webhook/altchat`). |
+| **Token (Bearer)** | Uma senha qualquer. O Altchat a envia em `Authorization: Bearer` e no campo `token` do corpo; valide no n8n. |
+
+### O que o n8n recebe
+
+A cada mensagem **recebida** do cliente (nunca das enviadas pela equipe), o Altchat faz um `POST` JSON no endpoint, em segundo plano, com timeout de 30 segundos:
+
+```json
+{
+  "event": "message.received",
+  "type": "text",
+  "content": "Minha internet caiu",
+  "mediaUrl": null,
+  "token": "sua-senha",
+  "companyId": 1,
+  "whatsapp": { "id": 1, "name": "Atendimento Principal" },
+  "ticket": { "id": 123, "status": "pending", "userId": null, "queueId": 4 },
+  "contact": { "id": 55, "name": "Ana Paula", "number": "5522988881001", "email": "", "document": null },
+  "message": { "id": "...", "body": "Minha internet caiu", "type": "chat", "mediaType": "chat", "from": "5522988881001", "to": "5522999990001", "timestamp": 1760000000, "hasMedia": false },
+  "metadata": {
+    "channel": "whatsapp",
+    "ticketId": 123,
+    "idempotencyKey": "1:1:123:MSGID:n8n",
+    "retryAttempt": 0,
+    "backendUrl": "https://app.altchat.com.br",
+    "mustacheValues": { "name": "Ana Paula", "firstname": "Ana", "queue": "Triagem", "protocol": "20261014-123", "user": "", "ticket": 123 },
+    "from": { "id": 55, "name": "Ana Paula", "number": "5522988881001", "extraInfo": [], "tags": [] },
+    "ticket": { "...": "atendimento completo com contact, user, queue, company e tags" }
+  }
+}
+```
+
+Campos úteis para decidir: `ticket.userId` (já tem atendente?), `ticket.queueId`, `metadata.channel` (`whatsapp`, `webchat`...), `metadata.from.extraInfo` (campos personalizados do contato) e, no chat do app do provedor, o bloco `identity` com `externalId` e `document`.
+
+`type` pode ser `text`, `image`, `audio`, `gif`, `call` e outros; para mídia, `mediaUrl` traz o endereço público do arquivo.
+
+### Como o n8n responde
+
+Duas formas, que podem ser combinadas:
+
+1. **Na própria resposta HTTP** do webhook: o corpo (texto ou JSON) é executado como comando, exatamente como no [webhook de comandos](/integracoes/tokens-e-webhooks/#webhook-de-comandos-entrada). Devolver a string `"Olá! Escolha: 1 Suporte, 2 Financeiro"` já envia a mensagem. Devolver `{ "queueId": 2 }` transfere.
+2. **Depois**, a qualquer momento: `POST /integrations/webhook?ticketId=123` ou `POST /api/messages/send` com um token de integração.
+
+Resposta HTML (página de erro do n8n, por exemplo) conta como falha.
+
+### Entregas e falhas
+
+- O Altchat tenta até **5 vezes** com intervalo crescente (5 s até 60 s). Use `metadata.idempotencyKey` para ignorar repetições no fluxo.
+- Depois de 3 falhas seguidas, o Altchat para de chamar por 60 segundos e tenta de novo.
+- Falhas aparecem nos logs do sistema; o cliente não recebe nada nesse intervalo, então mantenha o n8n monitorado.
+
+## Typebot
+
+| Campo | Valor |
+|---|---|
+| **Ativar Typebot ao receber mensagem** | Ligado. |
+| **URL do Typebot** | `https://typebot.io` ou a URL da sua instalação. |
+| **Public ID do Typebot** | O ID público do fluxo (em *Share*). |
+| **Token da API Typebot** | Opcional em fluxos públicos; obrigatório em instalações protegidas. |
+
+Na primeira mensagem o Altchat inicia uma sessão no Typebot com as variáveis pré-preenchidas `Company ID`, `Ticket ID`, `Contact name`, `Contact phone` e `WhatsApp connection` (no app do provedor, também `App source`, `App customer code` e `App customer document`). Declare-as no fluxo para usá-las. As mensagens seguintes continuam a mesma sessão; se ela expirar no Typebot, o Altchat recomeça. Mídia recebida chega ao Typebot como texto `[midia] <url>`.
+
+As respostas do Typebot (bolhas de texto) são enviadas ao cliente; blocos que devolvem JSON de comando (transferir, fechar) são executados como no n8n.
+
+Se n8n e Typebot estiverem ligados na mesma conexão, o n8n é chamado primeiro.
+
+## Quando o bot para
+
+A automação **não roda** quando:
+
+| Regra | Detalhe |
+|---|---|
+| A automação está **pausada** no atendimento | O atendente pausou, ou um comando `pauseAutomation` foi recebido. Um marcador aparece na conversa. |
+| **Interromper quando aceito** está ligado e o atendimento tem atendente | Aceitar basta. |
+| **Interromper ao sair da fila padrão** está ligado e o atendimento mudou de fila | Transferir para outra fila basta. **Sem fila padrão na conexão, qualquer fila interrompe.** |
+| O atendimento está numa fila que **não pertence à conexão** | Pausa automática, com fonte `queue_outside_connection`. Voltar para uma fila da conexão retoma. |
+| O atendimento foi encerrado pelo **link de continuação** | Não reabre o bot. |
+
+Para retomar o bot numa conversa: `PUT /tickets/:id` com `resumeAutomation: true`, ou transfira de volta para a fila padrão (se a regra de fila foi a causa).
+
+<Aside type="tip" title="Timeout do bot">
+Em **Configurações → Tempos de espera**, a regra *Ticket com chatbot* transfere ou fecha conversas em que o cliente parou de responder ao bot. Combine com o aviso ao cliente.
+</Aside>
+
+## Problemas comuns
+
+- **O bot continua depois da transferência.** Veja [O chatbot não para](/problemas/bot-nao-para/).
+- **O n8n recebe mas o cliente não vê a resposta.** O fluxo está devolvendo HTML ou um JSON que não é comando. Devolva texto puro ou um comando válido; teste com `{ "action": "ping" }` (resposta `pong`).
+- **Mensagens duplicadas no n8n.** Retentativas. Use `idempotencyKey`.
+- **O Typebot recomeça a cada mensagem.** O token da API está errado ou a sessão expira no Typebot; confira os logs do Typebot.

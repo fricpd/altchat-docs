@@ -1,0 +1,41 @@
+---
+title: Ramais e chamadas de voz
+description: "Telefonia no Altchat: ramais SIP por usuário, chamadas de voz pela API oficial do WhatsApp e gravações dentro do atendimento. Disponível quando contratado."
+sidebar:
+  order: 11
+  label: Ramais e chamadas
+  badge:
+    text: Opcional
+    variant: note
+---
+
+import { Aside } from '@astrojs/starlight/components';
+import Perfil from '../../../components/Perfil.astro';
+
+<Perfil tipo="admin" />
+
+Quando a empresa contrata **telefonia SIP**, o item **Ramais** aparece no menu Administração e o Altchat passa a fazer e receber chamadas de voz dentro do atendimento, inclusive **chamadas pelo WhatsApp** na conexão da API oficial.
+
+<Aside type="note">
+Se o item Ramais não aparece no seu menu, a empresa não tem SIP habilitado. Fale com o suporte do Altchat.
+</Aside>
+
+## Ramais
+
+Na tela **Ramais**, cada ramal tem número, senha SIP e o usuário vinculado. O limite de ramais faz parte do contrato.
+
+No cadastro do **usuário** (tela Usuários), ligue **Habilitar SIP** e informe **Conta SIP** e **Senha SIP**. A coluna *Status SIP* da lista de usuários mostra se o ramal está registrado.
+
+## Chamadas pelo WhatsApp (API oficial)
+
+Com **Ligações WABA** habilitadas em API Tools → WABA e o usuário com **Permitir chamadas WABA**, o atendente vê o botão **Ligar** no atendimento. Regras da Meta:
+
+- O cliente precisa **permitir** receber chamadas. O Altchat envia o pedido oficial de permissão; o estado (permitido, solicitado, recusado, limite atingido) aparece no atendimento.
+- A permissão vale por **7 dias** após o aceite. No máximo **2 pedidos por semana** por cliente.
+- Fora da janela de 24 horas, o pedido de permissão exige um template.
+
+Para a voz chegar ao atendente em tempo real, a aba WABA tem a opção **Habilitar SIP para voz em tempo real** com **SIP hostname** e **SIP port**, que liga a Cloud API da Meta à central telefônica da empresa.
+
+## Gravações
+
+Chamadas podem ser gravadas e ficam anexadas ao atendimento. Atendentes só ouvem se **Permitir que atendentes ouçam gravações** estiver ligado na tela [Empresa](/administradores/empresa/#operação-da-equipe); administradores sempre podem.

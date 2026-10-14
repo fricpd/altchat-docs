@@ -1,0 +1,56 @@
+---
+title: Instagram Direct e Facebook Messenger
+description: "Conectar ao Altchat uma conta de Instagram ou uma página do Facebook pela API da Meta: Page ID, token, verify token e webhook."
+sidebar:
+  order: 5
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components';
+import Perfil from '../../../../components/Perfil.astro';
+
+<Perfil tipo="admin" />
+
+Mensagens diretas do **Instagram** e do **Messenger** entram no Altchat como atendimentos normais. Os dois usam a plataforma da Meta e são configurados do mesmo jeito.
+
+## Antes de começar
+
+- Uma **página do Facebook** administrada pela empresa. Para o Instagram, a conta precisa ser **profissional** e estar vinculada à página.
+- Um **app** no Meta for Developers com os produtos *Messenger* e, se for o caso, *Instagram* adicionados.
+- O canal contratado no pacote (o cartão mostra *Nova conexão*; se mostrar *Solicitar*, fale com o suporte).
+
+Anote no painel da Meta:
+
+- **Page ID** da página.
+- **Instagram Business Account ID** (só para Instagram).
+- **Access Token** da página, gerado com as permissões `pages_messaging` e, para Instagram, `instagram_manage_messages`.
+
+## Criar a conexão
+
+<Steps>
+1. Em **Conexões → Adicionar**, no cartão **Instagram** ou **Facebook Messenger**, clique em **Nova conexão**.
+2. **Tipo de conexão**: *Instagram Direct* ou *Facebook Messenger*.
+3. Preencha **Page ID**, **Instagram Business Account ID** (Instagram), **Access Token** e um **Verify Token** à sua escolha (uma senha qualquer, que você vai repetir na Meta).
+4. Copie a **URL de callback**.
+5. Preencha nome, filas e fila padrão e clique em **Adicionar**.
+6. No app da Meta, em **Webhooks**, cadastre a URL de callback e o verify token, e assine os campos **messages** e **messaging_postbacks** (Messenger) ou **messages** (Instagram).
+7. Envie uma mensagem de teste para a página ou o perfil: ela deve aparecer em *Aguardando*.
+</Steps>
+
+<Aside type="caution" title="Revisão do app">
+Enquanto o app da Meta está em modo de desenvolvimento, só mensagens de pessoas cadastradas como testadoras chegam. Para atender o público, o app precisa passar pela **revisão** da Meta com as permissões de mensagem aprovadas.
+</Aside>
+
+## Limites
+
+| Tema | Como é |
+|---|---|
+| Iniciar conversa | Não: só responder a quem escreveu. |
+| Prazo de resposta | A Meta permite responder até 24 horas depois da última mensagem do cliente (7 dias com a tag de acompanhamento humano, quando disponível). |
+| Mídia | Fotos e texto. Documentos não. |
+| Identificação | O contato vem com o nome do perfil; o número de telefone não existe. |
+
+## Problemas comuns
+
+- **Webhook não valida.** O verify token digitado na Meta é diferente do da conexão.
+- **Token inválido.** Tokens de página expiram se gerados a partir de um login de usuário comum. Gere com um usuário do sistema ou renove.
+- **Mensagens de alguns clientes não chegam.** App em modo de desenvolvimento (veja o aviso acima).

@@ -1,0 +1,152 @@
+/* Identidade visual do Altchat aplicada ao Starlight.
+   Paleta extraída do painel (frontend/src/App.js):
+   primário #176b63 (verde), secundário #a87422 (dourado), info #3567c8. */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+	--sl-font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+	--sl-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+	/* Modo escuro (padrão do Starlight é :root = escuro) */
+	--sl-color-accent-low: #0f3a36;
+	--sl-color-accent: #2a8b81;
+	--sl-color-accent-high: #9fe0d6;
+	--sl-color-white: #ffffff;
+	--sl-color-gray-1: #e6ebea;
+	--sl-color-gray-2: #c2cbc9;
+	--sl-color-gray-3: #8d9b98;
+	--sl-color-gray-4: #5a6967;
+	--sl-color-gray-5: #3a4846;
+	--sl-color-gray-6: #27312f;
+	--sl-color-black: #171d1c;
+
+	--alt-gold: #c8923f;
+	--alt-info: #5e8ce2;
+	--alt-radius: 12px;
+}
+
+:root[data-theme='light'] {
+	--sl-color-accent-low: #d9f0ec;
+	--sl-color-accent: #176b63;
+	--sl-color-accent-high: #0f4a44;
+	--sl-color-white: #171d1c;
+	--sl-color-gray-1: #27312f;
+	--sl-color-gray-2: #3a4846;
+	--sl-color-gray-3: #5a6967;
+	--sl-color-gray-4: #8d9b98;
+	--sl-color-gray-5: #c2cbc9;
+	--sl-color-gray-6: #edf2f1;
+	--sl-color-gray-7: #f7faf9;
+	--sl-color-black: #ffffff;
+
+	--alt-gold: #a87422;
+	--alt-info: #3567c8;
+}
+
+/* Tipografia */
+.sl-markdown-content {
+	font-size: 1.0rem;
+	line-height: 1.7;
+}
+.sl-markdown-content h2 {
+	font-weight: 700;
+	letter-spacing: -0.01em;
+	margin-top: 2.5rem;
+}
+.sl-markdown-content h3 {
+	font-weight: 600;
+}
+
+/* Imagens de tela: moldura leve, sombra suave, cantos arredondados */
+.sl-markdown-content img,
+.sl-markdown-content starlight-image-zoom-zoomable img {
+	border-radius: var(--alt-radius);
+	border: 1px solid var(--sl-color-gray-5);
+	box-shadow: 0 10px 30px rgba(23, 107, 99, 0.10), 0 1px 3px rgba(0, 0, 0, 0.06);
+	background: var(--sl-color-black);
+}
+.sl-markdown-content figure.tela {
+	margin: 1.25rem 0 1.75rem;
+}
+.sl-markdown-content figure.tela figcaption {
+	font-size: 0.85rem;
+	color: var(--sl-color-gray-3);
+	margin-top: 0.5rem;
+}
+
+/* Botões de ação (primário com gradiente, igual ao painel) */
+.sl-link-button.primary {
+	background: linear-gradient(180deg, #22877d 0%, #176b63 100%);
+	border-color: transparent;
+	color: #f8fffb;
+	box-shadow: 0 10px 24px rgba(23, 107, 99, 0.18);
+	border-radius: 999px;
+}
+
+/* Cards da home e de navegação */
+.card {
+	border-radius: var(--alt-radius);
+	transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.card:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 12px 28px rgba(23, 107, 99, 0.12);
+}
+
+/* Etiqueta de perfil (Atendente / Admin / Super admin) */
+.perfil {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	font-size: 0.78rem;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	padding: 0.15rem 0.6rem;
+	border-radius: 999px;
+	border: 1px solid transparent;
+	vertical-align: middle;
+}
+.perfil-atendente {
+	background: var(--sl-color-accent-low);
+	color: var(--sl-color-accent-high);
+}
+.perfil-admin {
+	background: color-mix(in srgb, var(--alt-gold) 18%, transparent);
+	color: var(--alt-gold);
+}
+.perfil-super {
+	background: color-mix(in srgb, var(--alt-info) 18%, transparent);
+	color: var(--alt-info);
+}
+
+/* Tecla (atalho) */
+.sl-markdown-content kbd {
+	font-family: var(--sl-font-mono);
+	font-size: 0.8em;
+	padding: 0.1em 0.45em;
+	border-radius: 6px;
+	border: 1px solid var(--sl-color-gray-4);
+	border-bottom-width: 2px;
+	background: var(--sl-color-gray-6);
+}
+
+/* Nome de elemento da interface (botão, menu, aba) */
+.sl-markdown-content strong.ui,
+.ui {
+	font-weight: 600;
+	color: var(--sl-color-accent-high);
+}
+
+/* Hero da home */
+.hero h1 {
+	letter-spacing: -0.02em;
+}
+.hero .tagline {
+	color: var(--sl-color-gray-2);
+}
+
+/* Sidebar mais compacta e com destaque do item atual */
+.sidebar-content a[aria-current='page'] {
+	border-radius: 8px;
+}

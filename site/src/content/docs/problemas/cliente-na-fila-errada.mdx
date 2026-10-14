@@ -1,0 +1,47 @@
+---
+title: Cliente na fila errada ou conversa que ninguém vê
+description: "Por que uma conversa do Altchat aparece numa fila errada, fica sem fila ou não aparece para o atendente, e como corrigir."
+sidebar:
+  order: 3
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components';
+import Perfil from '../../../components/Perfil.astro';
+
+<Perfil tipo="admin" />
+
+**Sintomas**: o cliente diz que escreveu e ninguém respondeu; a conversa aparece no Monitoramento como *sem fila*; um atendente diz que "não vê" uma conversa que outro vê; conversas de Suporte caem em Comercial.
+
+## Como a fila é decidida
+
+1. A conexão tem **fila padrão**? A conversa cai nela.
+2. Não tem? O cliente recebe a **saudação da conexão** com o menu e precisa responder com o número da opção. Até responder, a conversa fica **sem fila**.
+3. A resposta dele não é um número válido? Continua sem fila.
+4. Transferências e timeouts podem mover depois.
+
+Conversas **sem fila** só aparecem para administradores (e no Monitoramento, bloco *Sem fila*).
+
+## Causas e correções
+
+| Situação | Causa | Correção |
+|---|---|---|
+| Muitas conversas *sem fila* | A conexão não tem fila padrão e os clientes não respondem ao menu (ou respondem com texto). | Defina uma **fila padrão** na conexão, ou simplifique o menu. Ligue o timeout *Ticket sem fila* para transferir automaticamente. |
+| Conversa na fila errada | O cliente escolheu a opção errada, ou a ordem das filas no campo *Filas* da conexão não bate com a numeração da saudação. | Transfira. Confira a ordem no cadastro da conexão. |
+| Atendente não vê a conversa | Ele não está na fila, ou *Ver chamados das filas dele* está em *Não* e a conversa é de outro colega. | Tela Usuários: filas e a opção de visibilidade. Tela Empresa: *Permitir fila compartilhada*. |
+| Conversa some depois de aceita | Foi aceita por outra pessoa e o atendente não tem visibilidade da fila. | Mesma correção acima. |
+| Conversa caiu numa conexão/número diferente | O cliente escreveu para outro número da empresa. | Verifique o campo conexão no cabeçalho. Se os dois números devem ter as mesmas filas, vincule-as nas duas conexões. |
+| Conversa fechada sozinha | Timeout de *aguardando em fila* ou de *sem fila* configurado para fechar; horário de atendimento com ação *encerrar*; contato bloqueado. | Veja [Tempos de espera](/administradores/configuracoes/tempos-de-espera/) e [Empresa](/administradores/empresa/). A conversa mostra uma anotação com o motivo. |
+| Cliente recebeu o menu mas o bot deveria atender | A conexão tem bot e a saudação está preenchida. | Com chatbot ativo, deixe a saudação vazia e use fila padrão. |
+
+<Aside type="tip" title="Veja o caminho da conversa">
+Abra o atendimento e role até o início: os marcadores do sistema mostram quando ele entrou na fila, quem aceitou e cada transferência. A [Auditoria](/administradores/auditoria/) mostra o mesmo com autor e horário.
+</Aside>
+
+## Roteiro
+
+<Steps>
+1. Abra o Monitoramento → **Por fila** e veja se há conversas *sem fila*.
+2. Abra a conexão (Conexões → Visualizar) e confira **fila padrão**, **filas** e a **saudação**.
+3. Abra o cadastro do atendente que não vê a conversa e confira **Filas** e **Ver chamados das filas dele**.
+4. Corrija e peça para o atendente recarregar a página.
+</Steps>

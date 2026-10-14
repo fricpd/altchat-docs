@@ -1,0 +1,11 @@
+import { chromium } from 'playwright';
+const browser = await chromium.launch();
+const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
+const page = await ctx.newPage();
+await page.goto('http://localhost:4321/administradores/conexoes/api-oficial-waba/');
+await page.waitForTimeout(1000);
+await page.screenshot({ path: 'previa/admin-waba.png' });
+await page.goto('http://localhost:4321/administradores/');
+await page.waitForTimeout(800);
+await page.screenshot({ path: 'previa/admin-index.png' });
+await browser.close();

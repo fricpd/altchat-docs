@@ -1,0 +1,17 @@
+import { chromium } from 'playwright';
+const browser = await chromium.launch();
+const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
+const page = await ctx.newPage();
+const erros = [];
+page.on('console', (m) => { if (m.type() === 'error') erros.push(m.text().slice(0, 120)); });
+await page.goto('http://localhost:4321/comece-aqui/o-que-e-o-altchat/');
+await page.waitForTimeout(2500);
+await page.locator('h2', { hasText: 'As cinco peças' }).scrollIntoViewIfNeeded();
+await page.waitForTimeout(800);
+await page.screenshot({ path: 'previa/mermaid-conceitos.png' });
+const svgs = await page.locator('svg[id^="mermaid"], .mermaid svg').count();
+await page.goto('http://localhost:4321/integracoes/chatbots/');
+await page.waitForTimeout(1500);
+await page.screenshot({ path: 'previa/integracoes-chatbots.png' });
+console.log('svgs mermaid:', svgs, 'erros console:', erros);
+await browser.close();

@@ -1,0 +1,34 @@
+---
+title: Mídia não abre ou arquivo recusado
+description: "Fotos que chegam em branco, áudios que não tocam e arquivos recusados no Altchat: causas por tipo de conexão e o que fazer."
+sidebar:
+  order: 5
+---
+
+import { Aside } from '@astrojs/starlight/components';
+import Perfil from '../../../components/Perfil.astro';
+
+<Perfil tipo="atendente" /> <Perfil tipo="admin" />
+
+## Ao receber
+
+| Sintoma | Conexão | Causa provável | O que fazer |
+|---|---|---|---|
+| Foto ou áudio chega como quadrado cinza / "mídia indisponível" | QR Code | Falha momentânea ao baixar a mídia do WhatsApp. | Peça para o cliente reenviar. Se acontecer com todos os clientes, reconecte a conexão e avise o suporte. |
+| Arquivo recebido não abre | Qualquer | O cliente mandou um formato que o navegador não exibe (por exemplo, .heic). | Baixe e abra no computador. |
+| Mídia não aparece em conexão Gupshup | Gupshup | A Gupshup baixa a mídia do endereço público do Altchat; se ele está inacessível, falha. | Administrador: confira https e firewall do endereço público. |
+| Áudio sem transcrição | Qualquer | Transcrição desligada, chave inválida ou áudio muito longo. | Configurações → Integrações. |
+
+## Ao enviar
+
+| Sintoma | Conexão | Causa | O que fazer |
+|---|---|---|---|
+| "Arquivo recusado" | API oficial | .zip, .rar ou outro tipo que a Meta não aceita. | Converta para PDF ou envie um link. |
+| "O WebChat ainda não envia arquivos" | WebChat | Limitação do canal. | Envie um link. |
+| Envio muito lento ou falha | QR Code | Arquivo grande (acima de ~100 MB) ou internet do celular lenta. | Comprima ou use link. |
+| Só os 5 primeiros anexaram | Qualquer | Limite de 5 arquivos por envio. | Mande em duas vezes. |
+| Áudio não grava | Qualquer | Navegador sem permissão de microfone. | Clique no cadeado da barra de endereço e permita. |
+
+<Aside type="note" title="Onde as mídias ficam">
+As mídias ficam guardadas no servidor do Altchat e continuam acessíveis no histórico do atendimento mesmo depois de resolvido. Não há prazo de expiração definido pela plataforma.
+</Aside>

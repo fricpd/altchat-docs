@@ -1,0 +1,103 @@
+---
+title: Tokens e webhook de comandos
+description: "Gerar e usar tokens de integração do Altchat (escopos, expiração, cabeçalho Authorization) e enviar comandos a um atendimento pelo webhook de integração."
+sidebar:
+  order: 1
+---
+
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import Perfil from '../../../components/Perfil.astro';
+
+<Perfil tipo="admin" />
+
+## Tokens de integração
+
+Um token identifica a empresa e autoriza chamadas à API. Ele é gerado em **Configurações → Integrações → Gerar token** (ou por `POST /integration-tokens` com a sessão do painel).
+
+| Propriedade | Valores |
+|---|---|
+| **Formato** | `da_` seguido de 64 caracteres. Só é exibido na criação; o Altchat guarda apenas uma assinatura. |
+| **Escopo** | `full` (padrão): age como administrador da empresa em toda a API. `webchat_links`: só serve para o [app do provedor](/integracoes/app-do-provedor/). Um token não serve fora do seu escopo. |
+| **Expiração** | 30 dias, 90 dias, 180 dias, 1 ano ou nunca. Prefira prazos definidos e renove. |
+| **Estados** | *active*, *expired*, *revoked*. Revogar invalida na hora. |
+
+### Como enviar o token
+
+Em todas as chamadas:
+
+```http
+Authorization: Bearer da_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+Content-Type: application/json
+```
+
+Token inválido, expirado, revogado ou com escopo errado devolve **401** com `{"error":"ERR_SESSION_EXPIRED"}`. Erros **403** e **503** vêm do licenciamento da instalação e não dependem do token.
+
+<Aside type="caution">
+Quem tem o token envia mensagens em nome da empresa. Não coloque o token em páginas web nem em apps distribuídos; guarde-o no servidor. Se vazar, revogue e gere outro.
+</Aside>
+
+## Webhook de comandos (entrada)
+
+`POST /integrations/webhook` recebe **comandos para um atendimento existente**. É a rota que o n8n e outros fluxos usam para agir depois de receber uma mensagem. Autenticação: token `full`.
+
+### Identificar o atendimento
+
+Informe o atendimento na query (`?ticketId=123`) ou no corpo (`ticketId`, `ticket_id`, `ticket.id`). Sem um atendimento válido, a resposta avisa `Command ignored because ticketId was not found in payload.` e nada é executado.
+
+### Formatos aceitos
+
+<Tabs>
+	<TabItem label="Texto simples">
+```json
+"Obrigado pelo contato! Em instantes um técnico vai atender."
+```
+Uma string vira mensagem de texto ao cliente. Também pode ser uma lista de strings.
+	</TabItem>
+	<TabItem label="Mensagem com mídia">
+```json
+{ "type": "image", "content": "Segue a fatura", "mediaUrl": "https://exemplo.com/fatura.png" }
+```
+`type` pode ser `text`, `image`, `video`, `audio`, `ptt`, `gif`, `document` ou `file`. A mídia é baixada da URL (limite de 20 segundos).
+	</TabItem>
+	<TabItem label="Várias mensagens">
+```json
+{ "messages": [ "Primeira mensagem", { "type": "document", "mediaUrl": "https://exemplo.com/contrato.pdf" } ] }
+```
+	</TabItem>
+	<TabItem label="Comando">
+```json
+{ "action": "menu", "menuOptions": [ { "id": "1", "text": "Suporte" }, { "id": "2", "text": "Financeiro" } ] }
+```
+	</TabItem>
+</Tabs>
+
+### Comandos (`action`)
+
+| Comando | Campos | Efeito |
+|---|---|---|
+| `menu` | `menuOptions[]` (`id`, `text`, opcional `description`, `url`), `menuButtonText`, `menuHeader`, `menuFooter` | Menu interativo na API oficial; texto numerado nos outros canais. |
+| `wait` | `seconds` (até 120) | Pausa entre mensagens. |
+| `note` | `content` | Anotação interna no atendimento. |
+| `updateTicket` | `ticketData: { status, userId, queueId, justClose, pauseAutomation, resumeAutomation, annotation }` | Altera o atendimento. `status`: `pending`, `open`, `closed`. |
+| (transferir) | `queueId`, opcional `userId`, `pauseAutomation` | Transfere. Com `userId` fica *Atendendo*; sem, fica *Aguardando*. |
+| `addTag` / `removeTag` / `clearTags` | `tagId` | Etiquetas do atendimento. |
+| `closeTicket: true` | | Encerra. |
+| `endSession` ou `stopbot: true` | | Encerra a sessão do Typebot. |
+| `ping` | | Responde `pong` (teste). |
+
+### Resposta
+
+```json
+{ "ok": true, "ticketId": 123, "executed": ["text", "queueId"], "warnings": [], "unsupported": [] }
+```
+
+`unsupported` lista comandos ignorados (por exemplo, etiquetas de contato, que a rota não altera).
+
+### Exemplo: transferir e avisar
+
+```bash
+curl -X POST "https://app.altchat.com.br/integrations/webhook?ticketId=123" \
+  -H "Authorization: Bearer SEU_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{ "messages": [ "Vou te passar para o Financeiro.", { "queueId": 2 } ] }'
+```

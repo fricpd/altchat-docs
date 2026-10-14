@@ -1,0 +1,39 @@
+---
+title: Não recebo mensagens em tempo real
+description: "A lista de conversas do Altchat só atualiza ao recarregar a página: causas no navegador, na rede e na sessão, e o que fazer."
+sidebar:
+  order: 6
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components';
+import Perfil from '../../../components/Perfil.astro';
+
+<Perfil tipo="atendente" /> <Perfil tipo="admin" />
+
+**Sintoma**: as mensagens novas só aparecem quando você aperta F5; o som de notificação não toca; o contador do menu não muda.
+
+O Altchat recebe atualizações por uma conexão permanente entre o navegador e o servidor. Quando ela cai, a tela fica estática.
+
+## Causas e correções
+
+| Causa | Como reconhecer | O que fazer |
+|---|---|---|
+| **Aba dormindo** | Acontece depois de a aba ficar em segundo plano por muito tempo, principalmente no Chrome com economia de memória. | Recarregue a página. Fixe a aba (botão direito → Fixar) e, nas configurações do navegador, desative a economia de memória para o site. |
+| **Sessão expirada** | Ao recarregar, cai na tela de login. | Entre de novo. Sessões expiram por inatividade longa ou quando o administrador usa *Desconectar usuário*. |
+| **Rede corporativa ou proxy** bloqueando a conexão permanente | Funciona no 4G e não no Wi-Fi da empresa. | Peça à TI para liberar conexões WebSocket para o endereço do Altchat. |
+| **Extensões do navegador** (bloqueadores agressivos) | Funciona em aba anônima. | Desative a extensão para o site. |
+| **Modo suporte** | A sessão foi aberta pela equipe do Altchat em nome da empresa. | Esperado: sessões de suporte não recebem tempo real. Entre com um usuário normal da empresa. |
+| **Servidor sobrecarregado** | Todos os usuários da empresa ao mesmo tempo. | Avise o suporte do Altchat. |
+
+## Roteiro
+
+<Steps>
+1. Recarregue a página (F5). Resolveu? Era a aba dormindo.
+2. Teste em **aba anônima**. Resolveu? Extensão ou cache; limpe o cache do site.
+3. Teste no **celular, pelo 4G**. Resolveu? Rede da empresa; chame a TI.
+4. Nada resolveu e outros colegas também estão sem tempo real: suporte do Altchat.
+</Steps>
+
+<Aside type="tip">
+Deixe o som ligado e aceite as notificações do navegador. Mesmo que a aba esteja escondida, o aviso aparece.
+</Aside>

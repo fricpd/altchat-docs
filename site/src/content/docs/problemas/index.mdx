@@ -1,0 +1,30 @@
+---
+title: Solução de problemas
+description: "Roteiros para os problemas mais comuns do Altchat: conexão caída, mensagem não enviada, cliente na fila errada, bot que não para, mídia, tempo real e foto de perfil."
+sidebar:
+  order: 0
+  label: Como usar esta seção
+---
+
+import { CardGrid, LinkCard, Aside } from '@astrojs/starlight/components';
+
+Cada roteiro começa pelo sintoma, lista as causas da mais comum para a mais rara e diz o que conferir em cada uma. Antes de abrir um roteiro, três verificações de 30 segundos resolvem boa parte dos casos:
+
+1. **A tela Conexões está toda verde?** Um cartão em *Desconectado* ou *Configurar* explica quase todo problema de envio e recebimento. Administradores veem o **!** no item Conexões do menu.
+2. **O problema é de um cliente ou de todos?** Um cliente só: olhe o contato, a fila e a janela de 24 horas. Todos: olhe a conexão.
+3. **Aconteceu agora ou depois de uma mudança?** Uma configuração salva há pouco (fila padrão, horário, timeout) costuma ser a causa.
+
+<CardGrid>
+	<LinkCard title="A conexão QR caiu ou pede pareamento" href="/problemas/conexao-qr-caiu/" />
+	<LinkCard title="Mensagem não enviada (um tique, erro da Meta, janela de 24 h)" href="/problemas/mensagem-nao-enviada/" />
+	<LinkCard title="Cliente não aparece na fila certa ou ninguém vê a conversa" href="/problemas/cliente-na-fila-errada/" />
+	<LinkCard title="O chatbot não para quando eu transfiro" href="/problemas/bot-nao-para/" />
+	<LinkCard title="Mídia não abre ou arquivo recusado" href="/problemas/midia-nao-abre/" />
+	<LinkCard title="Não recebo mensagens em tempo real" href="/problemas/sem-tempo-real/" />
+	<LinkCard title="Foto de perfil não aparece" href="/problemas/foto-de-perfil/" />
+	<LinkCard title="Perguntas frequentes" href="/problemas/perguntas-frequentes/" />
+</CardGrid>
+
+<Aside type="tip" title="Ao pedir ajuda ao suporte">
+Informe o **número do atendimento** (#000123), o **nome da conexão**, o **horário** e, se houver, o texto exato do erro. A equipe do Altchat consegue localizar o evento nos registros com esses quatro dados.
+</Aside>

@@ -1,0 +1,49 @@
+---
+title: O chatbot não para quando eu transfiro
+description: "Por que o n8n ou o Typebot continuam respondendo depois que o atendente assumiu ou transferiu a conversa no Altchat, e como configurar a conexão para o bot parar."
+sidebar:
+  order: 4
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components';
+import Perfil from '../../../components/Perfil.astro';
+
+<Perfil tipo="admin" />
+
+**Sintoma**: o atendente aceita ou transfere a conversa e o bot continua mandando mensagens ao cliente, respondendo por cima do atendente.
+
+## Como o Altchat decide se o bot está no controle
+
+Na conexão, os blocos **Integração n8n** e **Integração Typebot** têm duas chaves de parada:
+
+| Chave | O bot para quando... |
+|---|---|
+| **Interromper quando o chamado for aceito** | um atendente clica em *Aceitar* (ou a conversa é atribuída a alguém). |
+| **Interromper quando o chamado sair da fila padrão** | a conversa é transferida para uma fila diferente da **fila padrão da conexão**. |
+
+Se nenhuma das duas está ligada, o bot responde até o fim da conversa.
+
+<Aside type="caution" title="A armadilha da fila padrão">
+"Sair da fila padrão" só funciona se a conexão **tem** fila padrão. Sem fila padrão, o escopo do bot fica vazio, e vazio significa **qualquer fila**: o bot continua respondendo mesmo depois da transferência. Marque a fila do bot como padrão da conexão.
+</Aside>
+
+## Roteiro
+
+<Steps>
+1. Abra **Conexões → Visualizar** na conexão com bot.
+2. Confira **Fila padrão da conexão**: deve ser a fila "do bot" (por exemplo, *Triagem*).
+3. Ligue **Interromper quando o chamado sair da fila padrão** e, se o atendente deve poder assumir direto, também **Interromper quando o chamado for aceito**.
+4. Salve.
+5. Teste: inicie uma conversa pelo celular, deixe o bot responder, transfira para *Suporte* e mande outra mensagem. O bot não deve responder.
+</Steps>
+
+## Outras causas
+
+- **A transferência foi para uma pessoa, não para outra fila.** Se só "sair da fila padrão" está ligado, transferir para um atendente da mesma fila não para o bot. Ligue também "quando for aceito".
+- **O fluxo no n8n/Typebot tem memória própria** e responde a eventos antigos. Confira se o fluxo respeita o campo que indica que a conversa já tem atendente (o Altchat informa isso no payload; veja [Chatbots](/integracoes/chatbots/)).
+- **Automação pausada manualmente** pelo atendente e depois reativada. O atendimento mostra uma anotação quando a automação é pausada.
+- **Timeout de "ticket com chatbot"** transferiu a conversa sem parar o bot, porque a regra move para uma fila que ainda é a padrão. Transfira para outra fila.
+
+## Como pausar o bot numa conversa específica
+
+O atendente pode assumir a conversa pelo botão *Aceitar*; com "Interromper quando aceito" ligado, isso basta. A conversa mostra um marcador de que a automação foi pausada, e a Auditoria registra.

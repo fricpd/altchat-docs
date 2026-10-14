@@ -1,0 +1,64 @@
+---
+title: Widget WebChat no site
+description: "Instalar o balão de chat do Altchat no site do provedor, personalizar pelo script, entender as rotas públicas que o widget usa e os limites."
+sidebar:
+  order: 5
+---
+
+import { Aside } from '@astrojs/starlight/components';
+import Perfil from '../../../components/Perfil.astro';
+
+<Perfil tipo="admin" />
+
+A criação e a aparência da conexão de WebChat estão em [Conexões → WebChat](/administradores/conexoes/webchat/). Esta página é para quem vai colocar o script no site.
+
+## O script
+
+Copie de **Conexões → Visualizar → Script de instalação** e cole antes de `</body>`:
+
+```html
+<script src="https://app.altchat.com.br/webchat/fab.js?token=TOKEN_DO_CANAL"
+        data-webchat-channel-id="TOKEN_DO_CANAL"
+        data-api-url="https://app.altchat.com.br" async></script>
+```
+
+O token do canal é público. Ele identifica a conexão e permite apenas abrir conversa; a sessão de cada visitante é assinada pelo servidor e dura 7 dias no navegador dele.
+
+### Opções
+
+Atributos do `<script>` ou variáveis globais definidas antes do script:
+
+| Opção | Efeito |
+|---|---|
+| `data-webchat-mode="page"` | Chat em página inteira em vez de balão (para uma página "Fale conosco"). |
+| `window.WebchatAutoOpen = true` | Abre o painel ao carregar. |
+| `window.WebchatCtaMessage = "..."` | Sobrescreve a mensagem de chamada. |
+| `window.WebchatSecondaryColor`, `WebchatPanelWidth`, `WebchatPanelHeight` | Sobrescrevem a aparência configurada na conexão. |
+| `window.WebchatPoweredBy = false` | Esconde a assinatura do rodapé. |
+| `window.WebchatFabPulseEnabled`, `WebchatFabPulseScale`, `WebchatFabPulseDuration` | Pulsação do balão. |
+| `window.WebchatEmbedded = true` | Modo embutido (usado pelo app do provedor). |
+
+Mudanças feitas na janela da conexão (cores, textos) valem na hora, sem trocar o script.
+
+## O que o widget faz por baixo
+
+Tudo sem autenticação, com CORS liberado:
+
+| Rota | Uso |
+|---|---|
+| `GET /webchat/:token/config` | Aparência e textos. |
+| `POST /webchat/:token/session` | Abre a sessão (`visitorId`, `name`, `email`, `pageUrl` opcionais). Limite: 10 por minuto por visitante. |
+| `GET /webchat/:token/messages?sessionId=` | Busca as últimas 80 mensagens. O widget consulta a cada 3,5 segundos com o painel aberto. |
+| `POST /webchat/:token/messages` | Envia `{ "sessionId", "body" }`. Até 4.000 caracteres; limite de 30 por minuto. |
+
+Esses endpoints permitem construir o seu próprio chat (num app próprio, por exemplo) em vez de usar o balão.
+
+## Limites
+
+- Só **texto e links**; nada de arquivos, fotos ou áudio em nenhuma das direções.
+- Cada visitante é um contato novo no Altchat, identificado pelo `visitorId` do navegador. Para identificar o assinante de verdade, use o [chat identificado pelo app](/integracoes/app-do-provedor/).
+- Conexões marcadas como **Só conversas abertas pelo app** recusam o script de site (`ERR_WEBCHAT_APP_ONLY`).
+
+<Aside type="tip" title="Teste rápido">
+Crie um arquivo HTML local só com o script e abra no navegador: o balão deve aparecer e a conversa deve chegar em *Aguardando*. Se não aparecer, abra o console do navegador (F12): o erro mais comum é `ERR_WEBCHAT_NOT_FOUND` por token digitado errado.
+</Aside>

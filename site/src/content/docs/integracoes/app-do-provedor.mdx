@@ -1,0 +1,115 @@
+---
+title: App do provedor (WebChat identificado)
+description: "Como o app do assinante abre um chat já identificado no Altchat: o servidor do provedor pede um código com o token de escopo webchat_links, o app carrega o widget com o código, e o atendente vê quem é o cliente."
+sidebar:
+  order: 6
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components';
+import Perfil from '../../../components/Perfil.astro';
+
+<Perfil tipo="admin" />
+
+No chat do site, o visitante é anônimo. No chat **do app do assinante**, o Altchat já sabe quem está falando: o contato é criado pelo **código do cliente** no provedor, com nome e documento, e nunca pelo celular. Para isso, o servidor do provedor (não o app) pede ao Altchat um **código de abertura** para o assinante logado, e o app usa esse código ao carregar o widget.
+
+```mermaid
+sequenceDiagram
+  participant App
+  participant Servidor do provedor
+  participant Altchat
+  App->>Servidor do provedor: assinante logado abre o chat
+  Servidor do provedor->>Altchat: POST /api/webchat/links (token webchat_links)
+  Altchat-->>Servidor do provedor: { code, expiresInSeconds: 120 }
+  Servidor do provedor-->>App: code
+  App->>Altchat: carrega fab.js com window.WebchatAppCode = code
+  Altchat-->>App: sessão de 12 h; conversa identificada
+```
+
+## No Altchat (uma vez)
+
+<Steps>
+1. Crie uma conexão **WebChat** separada da do site, com **Só conversas abertas pelo app** ligado e uma **fila padrão**. Anote o token do canal (o `token=` do script de instalação, 48 caracteres).
+2. Gere um token de integração com escopo **`webchat_links`** em Configurações → Integrações. Esse token só serve para esta rota, então pode ficar no servidor do provedor com menos risco.
+</Steps>
+
+## No servidor do provedor
+
+Quando o assinante logado toca em "Falar com o suporte", o servidor chama:
+
+```http
+POST https://app.altchat.com.br/api/webchat/links
+Authorization: Bearer TOKEN_WEBCHAT_LINKS
+Content-Type: application/json
+
+{
+  "source": "altarede",
+  "externalId": "12.10234",
+  "channelToken": "TOKEN_DO_CANAL_SO_APP",
+  "name": "Ana Paula Ribeiro",
+  "document": "12345678901"
+}
+```
+
+| Campo | Regra |
+|---|---|
+| `source` | Nome do sistema de origem (fixo por provedor). |
+| `externalId` | **Obrigatório.** Identificador do assinante no formato `empresa.codigo`: de 1 a 6 dígitos, ponto, de 1 a 10 dígitos. É a chave do contato no Altchat. |
+| `channelToken` | **Obrigatório.** Token da conexão WebChat "só app". |
+| `name` | Até 120 caracteres. Padrão "Assinante". |
+| `document` | CPF (11 dígitos) ou CNPJ (14), ou `null`. |
+
+Resposta `201`:
+
+```json
+{ "code": "wa_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "expiresInSeconds": 120, "widgetVersion": "..." }
+```
+
+O código vale **2 minutos** e só pode ser usado uma vez, pelo primeiro aparelho que o usar. Nada é criado no Altchat (nem contato, nem atendimento) até a primeira mensagem. Até 5 códigos vivos por assinante; limite de 12 pedidos por minuto por assinante e 600 por minuto por empresa.
+
+| Erro | Significado |
+|---|---|
+| 400 `ERR_WEBCHAT_APP_INVALID_REQUEST` | Campo faltando ou fora do formato (quase sempre `externalId`). |
+| 404 `ERR_WEBCHAT_APP_CHANNEL_NOT_FOUND` | `channelToken` não existe. |
+| 409 `ERR_WEBCHAT_APP_NOT_ENABLED` | A conexão não está marcada como "só app". |
+| 503 `ERR_WEBCHAT_APP_BUSY` (com `Retry-After: 2`) | Pico momentâneo; repita em 2 segundos. |
+
+### Logout do assinante
+
+```http
+POST /api/webchat/links/revoke
+{ "source": "altarede", "externalId": "12.10234", "channelToken": "..." }
+```
+
+Apaga os códigos vivos e invalida as sessões anteriores daquele assinante. Chame quando o assinante sai do app.
+
+## No app
+
+O app recebe o `code` do servidor e carrega o widget numa WebView com a variável global definida **antes** do script:
+
+```html
+<script>window.WebchatAppCode = "wa_xxxxxxxx...";</script>
+<script src="https://app.altchat.com.br/webchat/fab.js" data-api-url="https://app.altchat.com.br" async></script>
+```
+
+Com `WebchatAppCode` definido, o widget entra em modo embutido, troca o código por uma sessão de **12 horas** (`POST /webchat/a/claim`) e passa a conversar por `GET`/`POST /webchat/a/messages` com o cabeçalho `x-webchat-app`. O app não precisa saber o token do canal.
+
+Se o app preferir uma interface própria em vez da WebView, pode chamar essas rotas diretamente:
+
+| Rota | Uso |
+|---|---|
+| `POST /webchat/a/claim` | `{ "code", "deviceSecret" }` (um segredo aleatório de 43 caracteres gerado e guardado pelo app) → `{ "session", "config", "closed" }`. |
+| `GET /webchat/a/messages` | Cabeçalho `x-webchat-app: <session>` → `{ "messages", "typing", "closed" }`. |
+| `POST /webchat/a/messages` | Mesmo cabeçalho, `{ "body" }` → `201 { "id", "createdAt" }`. |
+
+| Erro | Significado |
+|---|---|
+| 410 `ERR_WEBCHAT_APP_CODE_INVALID` | Código expirado, usado em outro aparelho ou revogado. Peça outro ao servidor. |
+| 401 `ERR_WEBCHAT_APP_SESSION_ENDED` | Sessão de 12 h acabou ou foi revogada no logout. Peça um código novo. |
+
+## O que o atendente vê
+
+O contato aparece com o nome e o documento enviados, o ícone de chat e o aviso de que foi aberto pelo app; o número de WhatsApp não é editável. Chatbots (n8n, Typebot) recebem o bloco `identity` com `source`, `externalId` e `document`, e podem consultar o ERP direto pelo código do cliente.
+
+<Aside type="caution" title="Nunca pelo celular">
+A identificação é sempre pelo `externalId`. Não tente "achar" o contato pelo número do celular do assinante: números mudam, são compartilhados e não provam identidade. O código do cliente, sim.
+</Aside>

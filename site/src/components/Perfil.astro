@@ -1,0 +1,25 @@
+---
+/**
+ * Etiqueta de perfil usada no topo das páginas.
+ * Uso: <Perfil tipo="atendente" /> | "admin" | "super"
+ */
+interface Props {
+	tipo: 'atendente' | 'admin' | 'super';
+}
+const { tipo } = Astro.props;
+const rotulos = {
+	atendente: 'Atendente',
+	admin: 'Administrador',
+	super: 'Operação central',
+};
+const icones = {
+	atendente: '🎧',
+	admin: '🛠️',
+	super: '🛰️',
+};
+---
+
+<span class={`perfil perfil-${tipo}`} title={`Conteúdo para o perfil ${rotulos[tipo]}`}>
+	<span aria-hidden="true">{icones[tipo]}</span>
+	{rotulos[tipo]}
+</span>

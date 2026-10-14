@@ -1,0 +1,53 @@
+---
+title: WABA via Gupshup
+description: "Conectar ao Altchat um número da API oficial do WhatsApp contratado pela Gupshup: dados do app, API key, webhook e diferenças em relação à conexão direta com a Meta."
+sidebar:
+  order: 3
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components';
+import Perfil from '../../../../components/Perfil.astro';
+
+<Perfil tipo="admin" />
+
+A **Gupshup** é um provedor oficial da API do WhatsApp. Quem contratou o número por ela (caso de quem migra de plataformas que usam a Gupshup por trás) conecta ao Altchat pelo tipo **Gupshup (WhatsApp)**, em vez do WABA direto. As regras de templates, janela de 24 horas e custo são as mesmas da [API oficial](/administradores/conexoes/api-oficial-waba/); só muda quem intermedeia.
+
+## Antes de começar
+
+No painel da Gupshup, anote:
+
+- **Nome do app** e **ID do app**
+- **Número da empresa** (com DDI, só dígitos)
+- **API key** da conta
+
+## Criar a conexão
+
+<Steps>
+1. Em **Conexões → Adicionar**, no cartão **WhatsApp Business API**, clique em **Nova conexão**.
+2. **Tipo de conexão**: *Gupshup (WhatsApp)*.
+3. Preencha **Nome do app na Gupshup**, **ID do app na Gupshup**, **Número da empresa** e **API key**.
+4. Copie a **URL de callback** mostrada na janela.
+5. Preencha nome, filas, fila padrão, saudação e despedida, e clique em **Adicionar**.
+6. No painel da Gupshup, no app correspondente, configure o **webhook** (callback URL) com o endereço copiado e ative os eventos de mensagem e de status.
+7. Mande uma mensagem de teste para o número: ela deve aparecer em *Aguardando*.
+</Steps>
+
+<Aside type="caution" title="Migração de outra plataforma">
+Se o número ainda está ligado à plataforma anterior pela mesma conta Gupshup, as duas recebem as mensagens até você trocar o webhook. Faça a virada num horário de baixo movimento e **não desvincule o parceiro** no painel da Meta antes de confirmar que o Altchat está recebendo.
+</Aside>
+
+## Diferenças para o WABA direto
+
+| | WABA direto (Meta) | Gupshup |
+|---|---|---|
+| Credenciais | Phone Number ID, Business Account ID, Access Token (API Tools → WABA) | Nome e ID do app, número, API key (na própria janela da conexão) |
+| Templates | Criados na aba API Tools → WABA | Criados e aprovados no painel da Gupshup |
+| Mídia recebida | Baixada da Meta | Baixada pela Gupshup; a URL pública do Altchat precisa estar acessível |
+| Chamadas de voz | Disponíveis | Não |
+| Contagem no pacote de canais | Conta como WABA | Conta como WABA (mesmo limite) |
+
+## Problemas comuns
+
+- **Não recebo nada.** Webhook não apontado para o Altchat, ou apontado para a URL antiga.
+- **Mídia chega como "arquivo indisponível".** O endereço público do Altchat (o mesmo da URL de callback) está bloqueado para a Gupshup. Confira firewall e https.
+- **Mensagens automáticas (aceite, transferência) não saem.** Precisam de template quando o cliente está fora da janela de 24 horas; dentro da janela saem como texto.

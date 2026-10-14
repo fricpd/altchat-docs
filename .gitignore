@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.astro/
+capturas/explorar/
+capturas/previa/
+capturas/*.log
+capturas/.license_seed
+capturas/.license_binding.json
+capturas/novidades-rascunho.md

@@ -1,0 +1,66 @@
+---
+title: Mensagem não enviada
+description: "Diagnosticar no Altchat mensagens que ficam com um tique, voltam com erro da Meta (10, 2593180, 131047) ou são recusadas fora da janela de 24 horas."
+sidebar:
+  order: 2
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components';
+import Perfil from '../../../components/Perfil.astro';
+
+<Perfil tipo="atendente" /> <Perfil tipo="admin" />
+
+**Sintoma**: a mensagem fica com **um tique cinza**, aparece com **ícone de erro**, ou o Altchat mostra um aviso ao tentar enviar.
+
+## Primeiro, qual é o tipo de conexão?
+
+Olhe o ícone no cabeçalho do atendimento ou o cartão em Conexões. O diagnóstico muda:
+
+### Conexão por QR Code
+
+| Sinal | Causa | O que fazer |
+|---|---|---|
+| Um tique em **todas** as conversas | Conexão caída. | [A conexão QR caiu](/problemas/conexao-qr-caiu/). |
+| Um tique só **neste** cliente | O telefone dele está sem internet, ou ele bloqueou o número. | Aguarde. Se outros canais confirmam que ele está online, foi bloqueio. |
+| Ícone de erro em todas | O WhatsApp recusou o envio (conta restrita). | Confira avisos no celular; fale com o suporte. |
+
+### Conexão pela API oficial (WABA ou Gupshup)
+
+| Erro mostrado | Causa | O que fazer |
+|---|---|---|
+| **Janela de 24 horas** fechada | O cliente não escreve há mais de 24 h. | Envie um **template** aprovado. A resposta dele reabre a janela. |
+| **Erro 10** ou **2593180** | O número não tem permissão de envio na Meta: conta sem pagamento, número não verificado ou restrito. | Conferir no Meta Business → WhatsApp. Até resolver, use outra conexão. |
+| **131047** | Fora da janela e sem template. | Mesmo caso da janela. |
+| **Token inválido** / cartão em *Configurar* | Access Token expirado. | Gere um token permanente e salve em API Tools → WABA. |
+| **Arquivo recusado** | .zip, .rar ou formato não aceito pela Meta. | Converta ou envie link. |
+| "Esta conexão não consegue enviar mensagens" | O atendimento está numa conexão arquivada ou sem credenciais. | Transfira o atendimento para a conexão certa. |
+
+<Aside type="caution" title="Dois cadastros para o mesmo número">
+Se o mesmo número existe como conexão direta na Meta **e** via Gupshup (ou QR), uma transferência pode levar o atendimento para a conexão que não consegue responder. O Altchat impede isso nas versões atuais, mas conversas antigas podem estar na conexão errada: transfira-as.
+</Aside>
+
+### WebChat
+
+| Sinal | Causa | O que fazer |
+|---|---|---|
+| "O WebChat ainda não envia arquivos" | Só texto e links são suportados. | Envie um link. |
+| Cliente não recebe | Ele fechou a página ou o app. | A mensagem fica guardada; ele vê ao reabrir o chat. |
+
+## Roteiro rápido
+
+<Steps>
+1. Veja se é um cliente ou todos. Todos: Conexões.
+2. Veja o tipo da conexão e use a tabela correspondente.
+3. Passe o mouse sobre o ícone de erro da mensagem: o Altchat mostra o motivo devolvido pelo canal.
+4. Resolvido o motivo, reenvie: menu da mensagem → *Responder* com o mesmo texto, ou copie e envie de novo.
+</Steps>
+
+## Como saber se foi entregue
+
+| Tiques | Estado |
+|---|---|
+| Um cinza | Enviada ao canal, não entregue ao telefone. |
+| Dois cinzas | Entregue ao telefone do cliente. |
+| Dois azuis | Lida (se o cliente não desligou a confirmação de leitura). |
+
+No WebChat não há tiques; a mensagem aparece como enviada quando o servidor a aceita.

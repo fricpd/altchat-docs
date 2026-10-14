@@ -1,0 +1,101 @@
+---
+title: Referência da API
+description: "Lista das rotas da API do Altchat que aceitam o token de integração: mensagens, atendimentos, contatos, filas, tags, usuários, conexões, dashboard, API Tools."
+sidebar:
+  order: 3
+---
+
+import { Aside } from '@astrojs/starlight/components';
+import Perfil from '../../../components/Perfil.astro';
+
+<Perfil tipo="admin" />
+
+Todas as rotas abaixo aceitam `Authorization: Bearer SEU_TOKEN` (escopo `full`) e devolvem JSON. Caminhos relativos a `https://app.altchat.com.br`. As rotas marcadas com ⚡ são as de uso mais comum em integrações; as demais espelham o que o painel faz.
+
+## Mensagens
+
+| Rota | Descrição |
+|---|---|
+| ⚡ `POST /api/messages/send` | Envia para um número e abre (ou registra) o atendimento. [Guia](/integracoes/enviar-mensagens-api/). |
+| ⚡ `GET /api/messages/status?id=` | Status de entrega de uma mensagem. |
+| `GET /messages/:ticketId` | Histórico do atendimento (paginado). |
+| `POST /messages/:ticketId` | Envia dentro de um atendimento existente: `body`, `quotedMsg`, `medias`, `wabaTemplate`, menu. |
+| `POST /messages/:ticketId/comment` | Anotação interna: `{ "body": "..." }`. |
+| `POST /messages/:ticketId/typing` | Indicador "digitando". |
+| `PUT` / `DELETE /messages/:messageId` | Edita ou apaga uma mensagem enviada. |
+
+## Atendimentos
+
+| Rota | Descrição |
+|---|---|
+| ⚡ `GET /tickets` | Lista. Query: `status` (`open`, `pending`, `closed`), `pageNumber`, `searchParam`, `showAll`. |
+| `GET /tickets/:ticketId` | Detalhe com contato, fila, atendente e tags. |
+| `POST /tickets` | Abre um atendimento para um contato: `contactId`, `queueId`, `whatsappId`, `status`. |
+| ⚡ `PUT /tickets/:ticketId` | Altera: `status`, `userId`, `queueId`, `subject`, `pauseAutomation`, `resumeAutomation`. É como aceitar (`status: open` + `userId`) e resolver (`status: closed`). |
+| `PUT /tickets/:ticketId/transfer` | Transfere para fila e/ou atendente. |
+| `PUT /tickets/:ticketId/tags` | Substitui as tags. |
+| `PUT /tickets/:ticketId/sla` | Pausa ou retoma o SLA. |
+| `POST /tickets/:ticketId/webchat-handoff` | Envia o link de continuação no WebChat (API oficial). `{ "resend": false }`. |
+| `GET /tickets/filter-options`, `/new-options`, `/board` | Listas auxiliares (filas, atendentes, conexões) e o quadro do Monitoramento. |
+| `DELETE /tickets/:ticketId` | Apaga o atendimento e as mensagens. |
+
+## Webhook de comandos
+
+| Rota | Descrição |
+|---|---|
+| ⚡ `POST /integrations/webhook?ticketId=` | Executa comandos num atendimento (mensagens, menu, transferir, etiquetas, fechar). [Guia](/integracoes/tokens-e-webhooks/#webhook-de-comandos-entrada). |
+
+## Contatos
+
+| Rota | Descrição |
+|---|---|
+| ⚡ `GET /contacts` | Lista com busca (`searchParam`) e paginação. |
+| `GET /contacts/:contactId` | Detalhe com campos personalizados. |
+| ⚡ `POST /contacts` | Cria: `name`, `number`, `email`, `personType`, `document`, `extraInfo: [{ "name", "value" }]`. |
+| `PUT /contacts/:contactId` | Edita. |
+| `DELETE /contacts/:contactId` | Apaga (e os atendimentos). |
+
+## Filas, tags, assuntos, respostas rápidas
+
+| Rota | Descrição |
+|---|---|
+| `GET` / `POST /queue`, `GET` / `PUT` / `DELETE /queue/:queueId` | Filas. |
+| `GET` / `POST /tags`, `PUT` / `DELETE /tags/:tagId` | Tags. |
+| `GET` / `POST /ticket-subjects`, `PUT /ticket-subjects/:id` | Assuntos. |
+| `GET` / `POST` / `PUT /quickAnswers` | Respostas rápidas. |
+
+## Usuários e conexões
+
+| Rota | Descrição |
+|---|---|
+| `GET /users`, `GET /users/:userId`, `POST /users`, `PUT /users/:userId` | Usuários. |
+| `POST /users/:userId/disconnect` | Derruba a sessão. |
+| `GET /whatsapp`, `GET /whatsapp/:whatsappId` | Conexões e estado. |
+| `GET /whatsapp/health` | Saúde das conexões. |
+| `GET /whatsapp/:id/waba/templates` | Templates aprovados da conexão oficial. |
+| `GET /whatsapp/attendance/summary`, `POST /whatsapp/attendance/close` | Resumo e fechamento em lote (aba Gerenciamento). |
+
+## Outras
+
+| Rota | Descrição |
+|---|---|
+| `GET /dashboard/summary?period=today` | Números do Dashboard. |
+| `GET /settings`, `PUT /settings/:key` | Configurações da empresa. |
+| `GET` / `POST /internal-tickets`, `PUT /internal-tickets/:id`, `POST /internal-tickets/:id/comments` | Tickets internos. |
+| `GET /api-tools/actions`, `POST /api-tools/actions/:id/execute` | Ações HTTP ([API Tools](/administradores/api-tools/)). Executar: `{ "ticketId", "contactId", "variables" }`. |
+| `GET /health`, `GET /ready` | Saúde do serviço (sem token). |
+
+Não aceitam token de integração: auditoria e logs do sistema.
+
+## Rotas públicas (sem token)
+
+Usadas pelo widget e pelos provedores de canal; documentadas nos guias próprios:
+
+- WebChat: `GET /webchat/fab.js`, `GET /webchat/:token/config`, `POST /webchat/:token/session`, `GET`/`POST /webchat/:token/messages`. [Widget WebChat](/integracoes/widget-webchat/)
+- App do provedor: `POST /api/webchat/links` (token `webchat_links`), `POST /webchat/a/claim`, `GET`/`POST /webchat/a/messages`. [App do provedor](/integracoes/app-do-provedor/)
+- Link de continuação: `GET /webchat/c`, `POST /webchat/c/claim`, `GET`/`POST /webchat/c/messages`.
+- Webhooks de entrada dos canais: `GET`/`POST /waba/webhook`, `GET`/`POST /meta/webhook`, `GET`/`POST /gupshup/webhook/:token`. [Conexões](/administradores/conexoes/)
+
+<Aside type="note" title="Coleção Postman">
+A equipe do Altchat mantém uma coleção Postman com exemplos de todas as rotas acima. Peça ao suporte.
+</Aside>

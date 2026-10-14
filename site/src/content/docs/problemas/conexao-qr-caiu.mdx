@@ -1,0 +1,45 @@
+---
+title: A conexão QR caiu ou pede pareamento
+description: "O que fazer quando a conexão de WhatsApp por QR Code do Altchat aparece como Desconectado, Tempo esgotado ou volta a pedir o QR Code."
+sidebar:
+  order: 1
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components';
+import Perfil from '../../../components/Perfil.astro';
+
+<Perfil tipo="admin" />
+
+**Sintoma**: o cartão em Conexões está em *Desconectado*, *Tempo esgotado* ou *QR Code*; a equipe vê o aviso de conexão na tela de atendimento; mensagens ficam com um tique só.
+
+## Causas, da mais comum para a mais rara
+
+| Causa | Como reconhecer | O que fazer |
+|---|---|---|
+| **Celular desligado ou sem internet** por horas | O cartão caiu de madrugada ou no fim de semana. | Ligue o celular, conecte à internet, depois ⋮ → **Reconectar**. |
+| **Alguém desconectou o Altchat no celular** (WhatsApp → Aparelhos conectados → Sair) | Cartão volta para *QR Code*. | Leia o QR de novo. Oriente a equipe a não mexer em *Aparelhos conectados*. |
+| **O mesmo número foi pareado em outro sistema** | Conecta e cai em seguida, repetidamente. | Desconecte o outro sistema em *Aparelhos conectados* e reconecte o Altchat. |
+| **Sessão travada em silêncio** | Cartão diz *Conectado* mas nada chega nem sai. | O Altchat detecta e reinicia sozinho em alguns minutos. Se não resolver, ⋮ → *Desconectar* e depois *Reconectar*. |
+| **Mudança do WhatsApp** | Todas as conexões por QR caíram ao mesmo tempo, em várias empresas. | Avise o suporte do Altchat. Exige atualização do sistema; nada a fazer na tela. |
+| **Número banido ou restrito pelo WhatsApp** | O celular mostra aviso de conta restrita. | Siga o recurso do próprio WhatsApp. Enquanto isso, atenda por outro número ou pela API oficial. |
+
+## Roteiro
+
+<Steps>
+1. Confira o celular: ligado, com internet, WhatsApp aberto ao menos uma vez.
+2. Em **Conexões**, ⋮ → **Reconectar**. Aguarde até 1 minuto.
+3. Se continuar, ⋮ → **Desconectar**, depois clique em **QR Code** e leia com o celular (WhatsApp → Aparelhos conectados → Conectar um aparelho).
+4. Se o QR não aparece ou a janela fica em branco, aguarde 30 segundos e reabra.
+5. Conectou: mande uma mensagem de teste de outro celular e confira que chega em *Aguardando*.
+6. Não conectou após duas tentativas: anote o horário e fale com o suporte.
+</Steps>
+
+<Aside type="caution" title="Mensagens durante a queda">
+Mensagens que os clientes mandaram enquanto a conexão estava fora **chegam quando ela volta**, se o celular estava ligado. Se o celular também estava desligado, elas chegam ao religar o celular. As que a equipe tentou enviar durante a queda ficam com um tique e saem sozinhas ao reconectar; confira as mais antigas.
+</Aside>
+
+## Prevenir
+
+- Celular dedicado, na tomada, com Wi-Fi estável e sem economia de bateria para o WhatsApp.
+- Um único sistema pareado ao número.
+- Para operação crítica, migre para a [API oficial](/administradores/conexoes/api-oficial-waba/), que não depende de celular.
