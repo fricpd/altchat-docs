@@ -83,6 +83,7 @@ Uma string vira mensagem de texto ao cliente. Também pode ser uma lista de stri
 | `addTag` / `removeTag` / `clearTags` | `tagId` | Etiquetas do atendimento. |
 | `closeTicket: true` | | Encerra. |
 | `endSession` ou `stopbot: true` | | Encerra a sessão do Typebot. |
+| `webchatHandoff` | opcional `resend: true` | Manda ao cliente o link de continuação no WebChat, o mesmo do botão *Enviar para o WebChat* do atendimento. Veja o [exemplo abaixo](#exemplo-mandar-o-cliente-para-o-webchat). |
 | `ping` | | Responde `pong` (teste). |
 
 ### Resposta
@@ -92,6 +93,19 @@ Uma string vira mensagem de texto ao cliente. Também pode ser uma lista de stri
 ```
 
 `unsupported` lista comandos ignorados (por exemplo, etiquetas de contato, que a rota não altera).
+
+### Exemplo: mandar o cliente para o WebChat
+
+O robô manda o link de continuação com um comando, sem token nem número do atendimento no fluxo: vale o atendimento da conversa.
+
+```json
+{ "messages": [ "Vou te mandar um link para continuarmos pelo chat.", { "action": "webchatHandoff" } ] }
+```
+
+- Só funciona em conexão da **API oficial** (Meta ou Gupshup) com o link de continuação ligado e um WebChat de destino escolhido na conexão, e com a janela de 24 horas aberta (o que acontece logo depois de uma mensagem do cliente).
+- Pedido repetido não manda outra mensagem: o cliente fica com o link que já recebeu, e `warnings` avisa que ele já tinha sido enviado. Para mandar um novo, use `{ "action": "webchatHandoff", "resend": true }`.
+- Se não der para mandar (conexão não oficial, link desligado, janela fechada, cliente já no WebChat), o motivo aparece em `warnings`, por exemplo `webchatHandoff: ERR_WEBCHAT_HANDOFF_DISABLED`, e os comandos seguintes continuam.
+- Quando o cliente abre o link, o atendimento do WhatsApp se encerra sozinho e a conversa continua no WebChat.
 
 ### Exemplo: transferir e avisar
 

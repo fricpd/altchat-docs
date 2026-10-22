@@ -90,7 +90,7 @@ Resposta HTML (página de erro do n8n, por exemplo) conta como falha.
 
 Na primeira mensagem o Altchat inicia uma sessão no Typebot com as variáveis pré-preenchidas `Company ID`, `Ticket ID`, `Contact name`, `Contact phone` e `WhatsApp connection` (no app do provedor, também `App source`, `App customer code` e `App customer document`). Declare-as no fluxo para usá-las. As mensagens seguintes continuam a mesma sessão; se ela expirar no Typebot, o Altchat recomeça. Mídia recebida chega ao Typebot como texto `[midia] <url>`.
 
-As respostas do Typebot (bolhas de texto) são enviadas ao cliente; blocos que devolvem JSON de comando (transferir, fechar) são executados como no n8n.
+As respostas do Typebot (bolhas de texto) são enviadas ao cliente; blocos que devolvem JSON de comando (transferir, fechar) são executados como no n8n. Uma bolha de texto que começa com `#` seguido de JSON também é um comando: `#{"action":"webchatHandoff"}` manda ao cliente o link para continuar no WebChat (veja [o comando](/integracoes/tokens-e-webhooks/#exemplo-mandar-o-cliente-para-o-webchat)).
 
 Se n8n e Typebot estiverem ligados na mesma conexão, o n8n é chamado primeiro.
 
